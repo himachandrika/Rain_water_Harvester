@@ -1,0 +1,7 @@
+{
+	"rainfall_mm_year": 820,
+	"groundwater_depth_m": 9.5,
+	"aquifer": { "name": "Alluvium", "type": "Unconfined" },
+	"runoff_coeff_default": 0.85,
+	"admin": { "name": "Sample District", "code": "IN-XX-001" }
+}

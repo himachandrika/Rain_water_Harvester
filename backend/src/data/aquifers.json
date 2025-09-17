@@ -1,0 +1,15 @@
+{
+	"type": "FeatureCollection",
+	"features": [
+		{
+			"type": "Feature",
+			"properties": { "name": "Alluvium (Delhi)", "type": "Unconfined" },
+			"geometry": {
+				"type": "Polygon",
+				"coordinates": [[
+					[76.8, 28.3], [77.8, 28.3], [77.8, 28.9], [76.8, 28.9], [76.8, 28.3]
+				]]
+			}
+		}
+	]
+}

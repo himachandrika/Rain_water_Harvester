@@ -1,0 +1,18 @@
+{
+	"IN-XX-001": {
+		"recharge_pit_base_inr": 35000,
+		"recharge_trench_per_meter_inr": 4200,
+		"recharge_shaft_base_inr": 60000,
+		"modular_tank_per_m3_inr": 8000,
+		"filtration_unit_base_inr": 15000,
+		"conveyance_per_meter_inr": 250
+	},
+	"default": {
+		"recharge_pit_base_inr": 40000,
+		"recharge_trench_per_meter_inr": 5000,
+		"recharge_shaft_base_inr": 70000,
+		"modular_tank_per_m3_inr": 9000,
+		"filtration_unit_base_inr": 18000,
+		"conveyance_per_meter_inr": 300
+	}
+}

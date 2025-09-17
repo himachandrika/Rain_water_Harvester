@@ -1,0 +1,18 @@
+{
+	"ignorePatterns": [
+		{ "pattern": "^http://localhost" },
+		{ "pattern": "^https://localhost" },
+		{ "pattern": "^mailto:" }
+	],
+	"httpHeaders": [
+		{
+			"urls": ["https://*"],
+			"headers": { "User-Agent": "github-actions-markdown-link-check" }
+		}
+	],
+	"config": {
+		"retryOn429": true,
+		"retryCount": 3,
+		"timeout": "15s"
+	}
+}
