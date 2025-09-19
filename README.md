@@ -15,6 +15,21 @@ cd backend && npm install && npm run dev
 cd frontend && npm install && npm run dev
 ```
 
+### Deploy to Vercel
+1. Push your code to GitHub.
+2. Go to [Vercel](https://vercel.com/) and import your repo.
+3. Set up environment variables from `env.example`.
+4. Vercel auto-detects frontend/backend and deploys.
+5. See `vercel.json` for custom rewrites.
+
+### Deploy to Render
+1. Push your code to GitHub.
+2. Go to [Render](https://render.com/) and create two services:
+	- **Frontend**: Static site, root `frontend/`, build command `npm install && npm run build`, publish `dist/`.
+	- **Backend**: Web service, root `backend/`, build command `npm install && npm run build`, start `npm run start`.
+3. Add environment variables from `env.example`.
+4. See `render.yaml` for service config.
+
 ### Production
 ```bash
 # One-click deployment
