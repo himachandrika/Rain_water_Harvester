@@ -286,7 +286,7 @@ async function fetchRainfallFromNasa(lat: number, lon: number): Promise<RainResu
 
 // Fallback to mock data
 const fallbackRainfallMmYr = mockCtx.rainfall_mm_year;
-async function fetchRainfallFallback(lat: number, lon: number) {
+async function fetchRainfallFallback(lat: number, lon: number): Promise<RainResult> {
 	app.log.warn({ lat, lon }, 'Using fallback rainfall data');
 	return { 
 		annual_mm: fallbackRainfallMmYr, 
