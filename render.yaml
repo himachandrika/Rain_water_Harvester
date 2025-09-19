@@ -4,12 +4,17 @@ services:
     env: static
     staticPublishPath: frontend/dist
     buildCommand: cd frontend && npm install && npm run build
-    startCommand: cd frontend && npm run preview
+    envVars:
+      - key: VITE_API_URL
+        value: "https://YOUR-BACKEND-URL.onrender.com"  # Replace after backend deploy
+
   - type: web
     name: backend
-    env: node
-    buildCommand: cd backend && npm install && npm run build
-    startCommand: cd backend && npm run start
+    env: docker
+    dockerfilePath: backend/Dockerfile
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 10000

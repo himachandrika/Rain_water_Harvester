@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM ghcr.io/puppeteer/puppeteer:22.8.0
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev

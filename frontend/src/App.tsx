@@ -10,7 +10,7 @@ import Card from './components/Card';
 import RainChart from './components/RainChart';
 import GeolocateButton from './components/GeolocateButton';
 
-const API_BASE = '/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
 
 function Stat({ label, value, suffix }: { label: string; value: string | number; suffix?: string }) {
 	return (

@@ -6,9 +6,9 @@ import pino from 'pino';
 import { z } from 'zod';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import mockCtx from './data/mock-context.json' assert { type: 'json' };
-import costs from './data/cost-table.json' assert { type: 'json' };
-import aquifers from './data/aquifers.json' assert { type: 'json' };
+import mockCtx from './data/mock-context.json';
+import costs from './data/cost-table.json';
+import aquifers from './data/aquifers.json';
 import { generatePdf } from './report.js';
 import { 
   validateAssessmentInput, 
@@ -64,8 +64,8 @@ await app.register(rateLimit, {
 	errorResponseBuilder: (request, context) => ({
 		code: 429,
 		error: 'Too Many Requests',
-		message: `Rate limit exceeded, retry in ${Math.round(context.after / 1000)} seconds`,
-		expiresIn: Math.round(context.after / 1000)
+		message: `Rate limit exceeded, retry in ${Math.round(Number(context.after) / 1000)} seconds`,
+		expiresIn: Math.round(Number(context.after) / 1000)
 	})
 });
 
@@ -78,6 +78,25 @@ await app.register(cors, {
 });
 
 app.get('/health', async () => ({ status: 'ok' }));
+
+// Friendly root route with API metadata
+app.get('/', async () => ({
+    name: 'RTRWH & AR API',
+    version: process.env.npm_package_version || '1.0.0',
+    environment: config.nodeEnv,
+    time: new Date().toISOString(),
+    endpoints: [
+        'GET /',
+        'GET /health',
+        'GET /test/boundaries',
+        'GET /context?lat=..&lon=..',
+        'GET /api/rainfall?lat=..&lon=..',
+        'GET /api/groundwater?lat=..&lon=..',
+        'GET /api/rainfall/nasa-hourly?...',
+        'POST /assess',
+        'POST /report'
+    ]
+}));
 
 // Test endpoint for boundary validation
 app.get('/test/boundaries', async () => {
@@ -140,8 +159,10 @@ function lookupGroundwater(lat: number, lon: number) {
 	return { depth_m: mockCtx.groundwater_depth_m, aquifer: mockCtx.aquifer };
 }
 
+type RainResult = { annual_mm: number; monthly_mm: number[]; data_period?: string; years_count?: number };
+
 // Open-Meteo Historical Weather API for rainfall data (last 2 complete years)
-async function fetchRainfallFromOpenMeteo(lat: number, lon: number): Promise<{ annual_mm: number; monthly_mm: number[] }> {
+async function fetchRainfallFromOpenMeteo(lat: number, lon: number): Promise<RainResult> {
 	try {
 		// Get data for the last 2 complete years (2022-2023, 2023-2024)
 		const currentDate = new Date();
@@ -165,7 +186,7 @@ async function fetchRainfallFromOpenMeteo(lat: number, lon: number): Promise<{ a
 		
 		const res = await fetch(url.toString(), { 
 			headers: { 'User-Agent': 'rtrwh-app/1.0' },
-			timeout: 15000
+			signal: AbortSignal.timeout(15000)
 		});
 		
 		if (!res.ok) throw new Error(`Open-Meteo Historical API ${res.status}: ${res.statusText}`);
@@ -211,7 +232,7 @@ async function fetchRainfallFromOpenMeteo(lat: number, lon: number): Promise<{ a
 }
 
 // NASA POWER API as secondary source (for recent data)
-async function fetchRainfallFromNasa(lat: number, lon: number): Promise<{ annual_mm: number; monthly_mm: number[] }> {
+async function fetchRainfallFromNasa(lat: number, lon: number): Promise<RainResult> {
 	try {
 		const today = new Date();
 		const end = `${today.getUTCFullYear()}${String(today.getUTCMonth() + 1).padStart(2, '0')}${String(today.getUTCDate()).padStart(2, '0')}`;
@@ -231,7 +252,7 @@ async function fetchRainfallFromNasa(lat: number, lon: number): Promise<{ annual
 		
 		const res = await fetch(url.toString(), { 
 			headers: { 'User-Agent': 'rtrwh-app/1.0' },
-			timeout: 15000
+			signal: AbortSignal.timeout(15000)
 		});
 		
 		if (!res.ok) throw new Error(`NASA POWER API ${res.status}: ${res.statusText}`);
@@ -370,6 +391,21 @@ app.get('/api/groundwater', async (req) => {
 	const lon = Number(q.lon ?? '0');
 	const gw = lookupGroundwater(lat, lon);
 	return gw;
+});
+
+// Report generation endpoint
+app.post('/report', async (req, reply) => {
+	try {
+		const payload = req.body as any;
+		const pdf = await generatePdf(payload);
+		reply
+			.header('Content-Type', 'application/pdf')
+			.header('Content-Disposition', 'attachment; filename="rtrwh_report.pdf"')
+			.send(pdf);
+	} catch (e: any) {
+		reply.code(500);
+		return { error: 'Failed to generate report', message: String(e?.message ?? e) };
+	}
 });
 
 const AssessInput = z.object({
