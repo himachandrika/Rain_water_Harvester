@@ -14,7 +14,5 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
-# Include CSV and other top-level data used by the server at /data (as expected by server.ts)
-COPY /data /data
 EXPOSE 4000
 CMD ["node","dist/server.js"]
