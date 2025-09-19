@@ -3,12 +3,14 @@ import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import helmet from '@fastify/helmet';
 import pino from 'pino';
+import { createRequire } from 'node:module';
 import { z } from 'zod';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import mockCtx from './data/mock-context.json';
-import costs from './data/cost-table.json';
-import aquifers from './data/aquifers.json';
+const requireJson = createRequire(import.meta.url);
+const mockCtx = requireJson('./data/mock-context.json');
+const costs = requireJson('./data/cost-table.json');
+const aquifers = requireJson('./data/aquifers.json');
 import { generatePdf } from './report.js';
 import { 
   validateAssessmentInput, 
